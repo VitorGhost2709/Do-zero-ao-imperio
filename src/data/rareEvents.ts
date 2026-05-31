@@ -1,0 +1,267 @@
+import type { GameEvent } from '../types/game';
+
+export const RARE_EVENTS: GameEvent[] = [
+  {
+    id: 'startup_opportunity',
+    title: 'Oportunidade de startup',
+    category: 'business',
+    riskLevel: 'extreme',
+    isRare: true,
+    description:
+      'Um fundador te convidou para entrar em uma startup promissora. Alto risco, alto retorno.',
+    choices: [
+      {
+        id: 'join_startup',
+        label: 'Entrar na startup',
+        effects: { money: -200, reputation: 15, stress: 20, happiness: 10 },
+        historyMessage: 'você apostou em uma startup e entrou na roleta do vale.',
+      },
+      {
+        id: 'small_stake',
+        label: 'Investir pouco',
+        effects: { money: -80, intelligence: 5, stress: 10 },
+        historyMessage: 'você investiu pouco na startup.',
+      },
+      {
+        id: 'pass_startup',
+        label: 'Recusar',
+        effects: { mentalHealth: 5 },
+        historyMessage: 'você recusou a startup e manteve os pés no chão.',
+      },
+    ],
+  },
+  {
+    id: 'family_crisis',
+    title: 'Crise familiar grave',
+    category: 'family',
+    riskLevel: 'extreme',
+    isRare: true,
+    description: 'Sua família enfrenta uma emergência séria. Você precisa decidir agora.',
+    choices: [
+      {
+        id: 'help_all',
+        label: 'Ajudar com tudo',
+        effects: { money: -250, happiness: -10, mentalHealth: -15, reputation: 10 },
+        historyMessage: 'você socorreu sua família em uma crise grave.',
+      },
+      {
+        id: 'partial_help',
+        label: 'Ajudar o possível',
+        effects: { money: -100, stress: 15, happiness: -5 },
+        historyMessage: 'você ajudou parcialmente sua família na crise.',
+      },
+      {
+        id: 'distance',
+        label: 'Manter distância',
+        effects: { reputation: -15, happiness: -20, mentalHealth: -10 },
+        historyMessage: 'você se afastou da crise familiar e carrega culpa.',
+      },
+    ],
+  },
+  {
+    id: 'illegal_proposal',
+    title: 'Proposta ilegal',
+    category: 'morality',
+    riskLevel: 'extreme',
+    isRare: true,
+    description: 'Ofereceram dinheiro fácil por um atalho ilegal. Muito arriscado.',
+    choices: [
+      {
+        id: 'accept_illegal',
+        label: 'Aceitar',
+        effects: { money: 400, reputation: -25, stress: 30, mentalHealth: -25 },
+        historyMessage: 'você aceitou um atalho ilegal e vive com medo.',
+      },
+      {
+        id: 'report_illegal',
+        label: 'Denunciar',
+        effects: { reputation: 20, stress: 15, money: -30 },
+        historyMessage: 'você denunciou a proposta ilegal.',
+      },
+      {
+        id: 'ignore_illegal',
+        label: 'Ignorar',
+        effects: { mentalHealth: 5 },
+        historyMessage: 'você ignorou a proposta ilegal.',
+      },
+    ],
+  },
+  {
+    id: 'viral_internet',
+    title: 'Viralização na internet',
+    category: 'unexpected',
+    riskLevel: 'high',
+    isRare: true,
+    description: 'Algo que você fez viralizou nas redes. Oportunidade ou exposição?',
+    choices: [
+      {
+        id: 'monetize',
+        label: 'Monetizar a fama',
+        effects: { money: 180, reputation: 12, stress: 18, charisma: 8 },
+        historyMessage: 'você surfou na viralização e monetizou.',
+      },
+      {
+        id: 'stay_private',
+        label: 'Manter privacidade',
+        effects: { mentalHealth: 10, happiness: 5, reputation: -3 },
+        historyMessage: 'você evitou os holofotes da viralização.',
+      },
+    ],
+  },
+  {
+    id: 'lawsuit',
+    title: 'Processo judicial',
+    category: 'unexpected',
+    riskLevel: 'high',
+    isRare: true,
+    description: 'Você foi envolvido em um processo judicial inesperado.',
+    choices: [
+      {
+        id: 'hire_lawyer',
+        label: 'Contratar advogado',
+        effects: { money: -200, reputation: 5, stress: 12 },
+        historyMessage: 'você contratou advogado e enfrentou o processo.',
+      },
+      {
+        id: 'settle',
+        label: 'Acordo extrajudicial',
+        effects: { money: -120, reputation: -5, stress: 8 },
+        historyMessage: 'você fechou um acordo para encerrar o processo.',
+      },
+      {
+        id: 'ignore_lawsuit',
+        label: 'Ignorar',
+        effects: { reputation: -20, stress: 25, money: -80 },
+        historyMessage: 'você ignorou o processo e a situação piorou.',
+      },
+    ],
+  },
+  {
+    id: 'serious_illness',
+    title: 'Doença séria',
+    category: 'health',
+    riskLevel: 'extreme',
+    isRare: true,
+    description: 'Um diagnóstico sério mudou seus planos da noite para o dia.',
+    choices: [
+      {
+        id: 'full_treatment',
+        label: 'Tratamento completo',
+        effects: { money: -300, physicalHealth: 25, mentalHealth: 10, stress: -5 },
+        historyMessage: 'você investiu no tratamento e recuperou forças.',
+      },
+      {
+        id: 'basic_treatment',
+        label: 'Tratamento básico',
+        effects: { money: -120, physicalHealth: 10, stress: 10 },
+        historyMessage: 'você fez tratamento básico para a doença.',
+      },
+      {
+        id: 'delay_treatment',
+        label: 'Adiar',
+        effects: { physicalHealth: -25, mentalHealth: -15, stress: 20 },
+        historyMessage: 'você adiou o tratamento e sua saúde sofreu.',
+      },
+    ],
+  },
+  {
+    id: 'unexpected_inheritance',
+    title: 'Herança inesperada',
+    category: 'money',
+    riskLevel: 'low',
+    isRare: true,
+    description: 'Você recebeu uma herança inesperada de um parente distante.',
+    choices: [
+      {
+        id: 'accept_inheritance',
+        label: 'Aceitar',
+        effects: { money: 500, happiness: 15, reputation: 5 },
+        historyMessage: 'você recebeu uma herança inesperada.',
+      },
+      {
+        id: 'donate_part',
+        label: 'Doar parte',
+        effects: { money: 300, reputation: 20, happiness: 20 },
+        historyMessage: 'você doou parte da herança e ganhou respeito.',
+      },
+    ],
+  },
+  {
+    id: 'big_investment',
+    title: 'Grande oportunidade de investimento',
+    category: 'money',
+    riskLevel: 'high',
+    isRare: true,
+    description: 'Um investimento de alto retorno apareceu — com risco proporcional.',
+    choices: [
+      {
+        id: 'all_in',
+        label: 'Investir pesado',
+        effects: { money: 350, stress: 20, happiness: 10 },
+        historyMessage: 'seu grande investimento deu certo!',
+      },
+      {
+        id: 'moderate',
+        label: 'Investir moderado',
+        effects: { money: 150, stress: 10 },
+        historyMessage: 'seu investimento moderado rendeu bem.',
+      },
+      {
+        id: 'skip_big',
+        label: 'Não investir',
+        effects: { intelligence: 3, mentalHealth: 5 },
+        historyMessage: 'você preferiu não arriscar no grande investimento.',
+      },
+    ],
+  },
+  {
+    id: 'partner_betrayal',
+    title: 'Traição de sócio',
+    category: 'business',
+    riskLevel: 'high',
+    isRare: true,
+    description: 'Seu sócio agiu contra você. Como responder?',
+    choices: [
+      {
+        id: 'legal_fight',
+        label: 'Batalha legal',
+        effects: { money: -150, reputation: 10, stress: 25 },
+        historyMessage: 'você enfrentou a traição do sócio na justiça.',
+      },
+      {
+        id: 'buy_out',
+        label: 'Comprar a parte dele',
+        effects: { money: -220, reputation: 5, happiness: -5 },
+        historyMessage: 'você comprou a parte do sócio traidor.',
+      },
+      {
+        id: 'walk_away',
+        label: 'Sair do negócio',
+        effects: { money: -80, reputation: -10, mentalHealth: -10, happiness: -8 },
+        historyMessage: 'você saiu do negócio após a traição.',
+      },
+    ],
+  },
+  {
+    id: 'partnership_invite',
+    title: 'Convite para sociedade',
+    category: 'business',
+    riskLevel: 'medium',
+    isRare: true,
+    description: 'Um empresário quer sua sociedade em um novo empreendimento.',
+    choices: [
+      {
+        id: 'accept_partnership',
+        label: 'Aceitar sociedade',
+        effects: { money: -180, reputation: 18, happiness: 8, stress: 12 },
+        historyMessage: 'você entrou em uma sociedade promissora.',
+      },
+      {
+        id: 'decline_partnership',
+        label: 'Recusar',
+        effects: { mentalHealth: 5, reputation: -3 },
+        historyMessage: 'você recusou o convite para sociedade.',
+      },
+    ],
+  },
+];
