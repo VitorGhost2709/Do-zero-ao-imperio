@@ -11,15 +11,41 @@ Jogo web de simulação de vida que mistura mecânicas de Cookie Clicker, The Si
 - Framer Motion (animações)
 - Lucide React (ícones)
 - localStorage (salvamento automático)
+- Supabase (auth e saves na nuvem — opcional)
 
 ## Como rodar
 
 ```bash
 npm install
+cp .env.example .env   # preencher credenciais Supabase (opcional)
 npm run dev
 ```
 
 Abra o endereço exibido no terminal (geralmente `http://localhost:5173`).
+
+## Autenticação Supabase (produção)
+
+Para confirmação de email e login funcionarem corretamente, configure no painel do Supabase:
+
+**Authentication → URL Configuration**
+
+| Campo | Valor |
+|---|---|
+| **Site URL** | `https://do-zero-ao-imperio.vercel.app` |
+| **Redirect URLs** | `https://do-zero-ao-imperio.vercel.app/**` |
+| | `http://localhost:5173/**` |
+| | `http://localhost:5174/**` |
+
+O código envia `emailRedirectTo` com `window.location.origin` no cadastro, então o link de confirmação aponta para o domínio de onde a conta foi criada (localhost em dev, Vercel em produção). Mesmo assim, a **Site URL** e as **Redirect URLs** precisam estar corretas no Supabase — caso contrário, links antigos ou fallback do painel podem redirecionar para `localhost`.
+
+Variáveis de ambiente (`.env`):
+
+```
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-chave-anon
+```
+
+Na Vercel, configure as mesmas variáveis em **Settings → Environment Variables**.
 
 ## Build para produção
 

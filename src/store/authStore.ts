@@ -1,6 +1,7 @@
 import type { Session, User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { isSupabaseConfigured, supabase } from '../lib/supabaseClient';
+import { getAuthRedirectUrl } from '../utils/authRedirect';
 
 interface AuthStore {
   session: Session | null;
@@ -76,7 +77,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
       return { ok: false, message: 'Supabase não configurado.' };
     }
     set({ loading: true, authError: null });
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: getAuthRedirectUrl(),
+      },
+    });
     set({ loading: false });
     if (error) {
       const message = friendlyAuthError(error.message);
@@ -90,7 +97,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       ok: true,
       message: data.session
         ? 'Conta criada com sucesso!'
-        : 'Conta criada! Verifique seu email se a confirmação estiver ativa.',
+        : 'Conta criada. Enviamos um email de confirmação. Depois de confirmar, volte para o jogo e faça login.',
     };
   },
 
