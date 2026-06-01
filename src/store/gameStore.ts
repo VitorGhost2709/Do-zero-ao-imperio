@@ -11,6 +11,7 @@ import type {
   TraitId,
 } from '../types/game';
 import type { GameState } from '../types/game';
+import { DEBT_THRESHOLD } from '../types/game';
 import type { SaveSyncStatus } from '../types/save';
 import {
   checkAchievements,
@@ -80,6 +81,11 @@ import {
   type GameOverProfile,
 } from '../utils/gameLogic';
 import { processMonthlyCycle } from '../utils/monthlyLogic';
+import {
+  buildActionBreakdown,
+  buildLastMonthSummary,
+} from '../utils/monthSummaryLogic';
+import type { MonthBreakdownItem, TurnSnapshot } from '../types/monthSummary';
 import { useNotificationStore } from './notificationStore';
 import {
   clearCloudMeta,
@@ -131,6 +137,17 @@ interface GameStore extends GameState {
     syncedAt?: string,
   ) => void;
   detachCloudSave: () => void;
+  dismissMonthTransition: () => void;
+}
+
+function captureTurnSnapshot(
+  state: Pick<GameState, 'stats' | 'fame' | 'relationshipScore'>,
+): TurnSnapshot {
+  return {
+    stats: { ...state.stats },
+    fame: state.fame,
+    relationshipScore: state.relationshipScore,
+  };
 }
 
 function addHistory(
@@ -440,6 +457,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ cloudSyncStatus });
   },
 
+  dismissMonthTransition: () => set({ monthTransition: null }),
+
   performAction: (actionId) => {
     const state = get();
     if (
@@ -450,6 +469,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     ) {
       return;
     }
+
+    const beforeTime = { ...state.time };
+    const beforeSnapshot = captureTurnSnapshot(state);
 
     const energyBefore = state.stats.energy;
     let exhaustionCounter = state.exhaustionCounter;
@@ -523,6 +545,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const action = ACTION_MAP[actionId];
+    const monthBreakdown: MonthBreakdownItem[] = [
+      ...buildActionBreakdown(action, effects),
+      ...monthly.breakdown,
+    ];
     const historyMsg = buildActionHistoryMessage(
       action,
       effects,
@@ -570,6 +596,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
       tracking,
     );
 
+    const finalStats = partial.stats ?? newStats;
+    const afterSnapshot = captureTurnSnapshot({
+      stats: finalStats,
+      fame: monthly.fame,
+      relationshipScore: relScoreAfter,
+    });
+
+    if (finalStats.money < DEBT_THRESHOLD) {
+      monthBreakdown.push({
+        label: 'Dívidas: +4 estresse e queda de humor/reputação',
+        type: 'warning',
+      });
+    }
+
+    const lastMonthSummary = buildLastMonthSummary({
+      before: beforeSnapshot,
+      after: afterSnapshot,
+      beforeTime,
+      afterTime: newTime,
+      actionName: action.name,
+      breakdown: monthBreakdown,
+    });
+
     set({
       ...partial,
       lifePathTracking,
@@ -582,6 +631,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lifeDiary: narrativePatch.lifeDiary ?? partial.lifeDiary,
       unlockedMemories: narrativePatch.unlockedMemories,
       totalActions: state.totalActions + 1,
+      lastMonthSummary,
+      monthTransition: {
+        id: crypto.randomUUID(),
+        fromMonth: beforeTime.month,
+        toMonth: newTime.month,
+        fromAge: beforeTime.age,
+        toAge: newTime.age,
+      },
     });
   },
 

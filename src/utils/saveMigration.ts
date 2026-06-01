@@ -233,5 +233,7 @@ export function migrateGameState(parsed: Partial<GameState>): GameState | null {
     childrenCount,
     unlockedMemories,
     pendingConsequences,
+    lastMonthSummary: parsed.lastMonthSummary ?? null,
+    monthTransition: null,
   };
 }

@@ -13,6 +13,8 @@ import { CharacterCreationScreen } from './components/CharacterCreationScreen';
 import { NotificationStack } from './components/NotificationStack';
 import { DangerAlert } from './components/ui/DangerAlert';
 import { SuggestedGoalPanel } from './components/SuggestedGoalPanel';
+import { MonthTransitionOverlay } from './components/MonthTransitionOverlay';
+import { MonthSummaryCard } from './components/MonthSummaryCard';
 import { useGameStore } from './store/gameStore';
 import { useAuthStore } from './store/authStore';
 
@@ -32,11 +34,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-empire-bg">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-empire-bg">
       <Header />
       <NotificationStack />
+      <MonthTransitionOverlay />
 
-      <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+      <main className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
         <div className="mb-4">
           <DangerAlert />
         </div>
@@ -46,8 +49,9 @@ function App() {
             <StatusPanel />
           </div>
 
-          <div className="order-1 space-y-4 lg:order-2 lg:col-span-6">
+          <div className="order-1 min-w-0 space-y-4 lg:order-2 lg:col-span-6">
             <CharacterSummary />
+            <MonthSummaryCard />
             <SuggestedGoalPanel />
             <MonthlySummary />
             <ActionPanel />

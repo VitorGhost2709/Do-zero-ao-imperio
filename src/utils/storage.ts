@@ -62,6 +62,8 @@ export function getDefaultGameState(): GameState {
     childrenCount: 0,
     unlockedMemories: [],
     pendingConsequences: [],
+    lastMonthSummary: null,
+    monthTransition: null,
   };
 }
 

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useIsMobile } from '../hooks/useMediaQuery';
 import { User, Briefcase, Home, Building2, Heart, Eye } from 'lucide-react';
 import { DIFFICULTY_MAP } from '../data/difficulties';
 import { LIFE_PATH_MAP } from '../data/lifePaths';
@@ -24,6 +25,7 @@ import {
 } from '../utils/gameLogic';
 
 export function CharacterSummary() {
+  const isMobile = useIsMobile();
   const stats = useGameStore((s) => s.stats);
   const time = useGameStore((s) => s.time);
   const characterName = useGameStore((s) => s.characterName);
@@ -94,14 +96,14 @@ export function CharacterSummary() {
 
   return (
     <motion.section
-      className="empire-card p-5 sm:p-6"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
+      className="empire-card max-w-full overflow-hidden p-4 sm:p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <motion.div
           className="mx-auto flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-empire-accent/40 to-empire-gold/30 ring-2 ring-empire-border sm:mx-0"
-          animate={{ y: [0, -3, 0] }}
+          animate={isMobile ? undefined : { y: [0, -3, 0] }}
           transition={{ repeat: Infinity, duration: 3 }}
         >
           <User className="h-8 w-8 text-slate-200" />
@@ -141,10 +143,10 @@ export function CharacterSummary() {
         "{statusPhrase}"
       </blockquote>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
-        <div className="flex items-center gap-2 rounded-lg border border-empire-border/50 bg-empire-surface/80 px-3 py-2 text-xs">
-          <Heart className="h-3.5 w-3.5 text-rose-400" />
-          <span className="text-slate-400">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-empire-border/50 bg-empire-surface/80 px-3 py-2 text-xs">
+          <Heart className="h-3.5 w-3.5 shrink-0 text-rose-400" />
+          <span className="min-w-0 break-words text-slate-400">
             {getRelationshipDisplayLabel(relationshipStatus, partnerName)} ·{' '}
             {relationshipScore}/100
             {hasChildren && childrenCount > 0
@@ -152,37 +154,39 @@ export function CharacterSummary() {
               : ''}
           </span>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-empire-border/50 bg-empire-surface/80 px-3 py-2 text-xs">
-          <Eye className="h-3.5 w-3.5 text-violet-400" />
-          <span className="text-slate-400">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-empire-border/50 bg-empire-surface/80 px-3 py-2 text-xs">
+          <Eye className="h-3.5 w-3.5 shrink-0 text-violet-400" />
+          <span className="min-w-0 break-words text-slate-400">
             Fama {fame} · {fameTier.label}
           </span>
         </div>
-        <div className="rounded-lg border border-empire-border/50 bg-empire-surface/80 px-3 py-2 text-[10px] text-slate-500">
-          {pathDef.description}
+        <div className="min-w-0 rounded-lg border border-empire-border/50 bg-empire-surface/80 px-3 py-2 text-[10px] leading-snug text-slate-500">
+          <span className="line-clamp-3 break-words">{pathDef.description}</span>
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-empire-surface p-3 text-center">
-        <div>
+      <div className="mt-4 grid grid-cols-1 gap-2 rounded-xl bg-empire-surface p-3 text-center sm:grid-cols-3">
+        <div className="min-w-0 px-1">
           <p className="text-[10px] uppercase text-slate-500">Dinheiro</p>
-          <p className="text-sm font-bold text-empire-gold">
+          <p className="truncate text-sm font-bold text-empire-gold">
             R$ {stats.money.toLocaleString('pt-BR')}
           </p>
         </div>
-        <div>
+        <div className="min-w-0 px-1">
           <p className="text-[10px] uppercase text-slate-500">Patrimônio</p>
-          <p className="text-sm font-bold text-white">
+          <p className="truncate text-sm font-bold text-white">
             R$ {patrimony.toLocaleString('pt-BR')}
           </p>
         </div>
-        <div>
+        <div className="min-w-0 px-1">
           <p className="text-[10px] uppercase text-slate-500">Trabalho</p>
-          <p className="text-sm font-bold text-empire-success">R$ {workIncome}</p>
+          <p className="truncate text-sm font-bold text-empire-success">
+            R$ {workIncome}
+          </p>
         </div>
       </div>
 
-      <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+      <div className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
         <div className="flex items-center gap-2 rounded-lg bg-empire-surface/80 px-3 py-2 text-slate-400">
           <Briefcase className="h-3.5 w-3.5 text-empire-accent" />
           {career.name}
@@ -209,10 +213,12 @@ export function CharacterSummary() {
         {summaries.map(({ label, value }) => (
           <div
             key={label}
-            className="flex justify-between rounded-lg border border-empire-border/50 px-3 py-1.5 text-xs"
+            className="flex flex-col gap-0.5 rounded-lg border border-empire-border/50 px-3 py-1.5 text-xs sm:flex-row sm:justify-between sm:gap-2"
           >
-            <span className="text-slate-500">{label}</span>
-            <span className="text-slate-300">{value}</span>
+            <span className="shrink-0 text-slate-500">{label}</span>
+            <span className="min-w-0 break-words text-slate-300 sm:text-right">
+              {value}
+            </span>
           </div>
         ))}
       </div>

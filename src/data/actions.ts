@@ -33,7 +33,7 @@ export const ACTIONS: GameAction[] = [
     icon: 'Moon',
     effects: {
       energy: 28,
-      stress: -12,
+      stress: -14,
       mentalHealth: 6,
       happiness: 4,
     },

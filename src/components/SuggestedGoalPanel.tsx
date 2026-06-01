@@ -13,7 +13,7 @@ export function SuggestedGoalPanel() {
 
   return (
     <motion.div
-      className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${
+      className={`flex max-w-full items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 ${
         goal.priority === 'critical'
           ? 'border-red-500/40 bg-red-500/10'
           : goal.priority === 'high'
@@ -32,7 +32,7 @@ export function SuggestedGoalPanel() {
         <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
           Próximo passo sugerido
         </p>
-        <p className="mt-0.5 text-sm text-slate-200">{goal.text}</p>
+        <p className="mt-0.5 break-words text-sm text-slate-200">{goal.text}</p>
       </div>
     </motion.div>
   );

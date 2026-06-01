@@ -1,3 +1,9 @@
+import type {
+  LastMonthSummary,
+  MonthBreakdownItem,
+  MonthTransitionState,
+} from './monthSummary';
+
 export type ActionId =
   | 'work'
   | 'study'
@@ -443,6 +449,8 @@ export interface GameState {
   childrenCount: number;
   unlockedMemories: MemoryId[];
   pendingConsequences: ConsequenceTag[];
+  lastMonthSummary?: LastMonthSummary | null;
+  monthTransition?: MonthTransitionState | null;
 }
 
 export interface LifePhase {
@@ -470,6 +478,7 @@ export interface MonthlyCycleResult {
   totalExpenses: number;
   totalIncome: number;
   paidInFull: boolean;
+  breakdown: MonthBreakdownItem[];
 }
 
 export interface PatrimonyContext {

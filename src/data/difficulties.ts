@@ -7,6 +7,8 @@ export interface DifficultyDefinition {
   billsMultiplier: number;
   expenseMultiplier: number;
   stressGainMultiplier: number;
+  /** Multiplicador para redução de estresse em ações (valores negativos) */
+  stressReliefMultiplier: number;
   actionEnergyDrainMultiplier: number;
   rewardMultiplier: number;
   negativeEventBias: number;
@@ -23,6 +25,7 @@ export const DIFFICULTIES: DifficultyDefinition[] = [
     billsMultiplier: 1,
     expenseMultiplier: 1,
     stressGainMultiplier: 1,
+    stressReliefMultiplier: 1.2,
     actionEnergyDrainMultiplier: 1,
     rewardMultiplier: 1,
     negativeEventBias: 0,
@@ -37,6 +40,7 @@ export const DIFFICULTIES: DifficultyDefinition[] = [
     billsMultiplier: 1.12,
     expenseMultiplier: 1.08,
     stressGainMultiplier: 1.1,
+    stressReliefMultiplier: 1,
     actionEnergyDrainMultiplier: 1.05,
     rewardMultiplier: 0.92,
     negativeEventBias: 0.1,
@@ -51,6 +55,7 @@ export const DIFFICULTIES: DifficultyDefinition[] = [
     billsMultiplier: 1.28,
     expenseMultiplier: 1.15,
     stressGainMultiplier: 1.22,
+    stressReliefMultiplier: 0.85,
     actionEnergyDrainMultiplier: 1.15,
     rewardMultiplier: 0.85,
     negativeEventBias: 0.18,

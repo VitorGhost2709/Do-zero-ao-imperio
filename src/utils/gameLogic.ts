@@ -328,22 +328,27 @@ export function advanceTime(time: TimeState): TimeState {
   return { age, month };
 }
 
+const MONTH_LABELS = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
+] as const;
+
+export function getMonthLabel(time: TimeState): string {
+  return MONTH_LABELS[time.month - 1] ?? `Mês ${time.month}`;
+}
+
 export function formatTime(time: TimeState): string {
-  const months = [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-  ];
-  return `${months[time.month - 1]} · ${time.age} anos`;
+  return `${getMonthLabel(time)} · ${time.age} anos`;
 }
 
 export function formatNarrative(
@@ -502,7 +507,7 @@ export function applyDebtPenalties(
   const penalized = applyStatDelta(stats, {
     happiness: -6,
     reputation: -3,
-    stress: 6,
+    stress: 4,
     mentalHealth: -4,
   });
   return {

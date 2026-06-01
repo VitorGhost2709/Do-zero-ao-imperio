@@ -21,6 +21,9 @@ export function applyDifficultyToActionDelta(
   if (next.stress !== undefined && next.stress > 0) {
     next.stress = Math.round(next.stress * d.stressGainMultiplier);
   }
+  if (next.stress !== undefined && next.stress < 0) {
+    next.stress = Math.round(next.stress * d.stressReliefMultiplier);
+  }
   if (next.energy !== undefined && next.energy < 0) {
     next.energy = Math.round(next.energy * d.actionEnergyDrainMultiplier);
   }

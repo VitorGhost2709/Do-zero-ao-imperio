@@ -17,9 +17,9 @@ export function MonthlySummary() {
   const net = income - expenses;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-empire-border/80 bg-empire-surface/60 px-3 py-2">
+    <div className="flex max-w-full items-center gap-3 overflow-hidden rounded-xl border border-empire-border/80 bg-empire-surface/60 px-3 py-2">
       <CalendarDays className="h-4 w-4 shrink-0 text-slate-500" />
-      <div className="flex flex-1 flex-wrap gap-x-4 gap-y-0.5 text-[11px]">
+      <div className="flex min-w-0 flex-1 flex-wrap gap-x-3 gap-y-1 text-[11px]">
         <span className="text-slate-400">
           Contas/mês: <span className="text-red-300">-R$ {expenses}</span>
         </span>

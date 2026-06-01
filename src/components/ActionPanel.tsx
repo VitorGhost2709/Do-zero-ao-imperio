@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Briefcase,
@@ -15,6 +15,7 @@ import type { ActionId } from '../types/game';
 import { canAffordAction, computeActionEffects } from '../utils/gameLogic';
 import { formatEffectLines } from '../utils/actionFeedbackPreview';
 import { FloatingEffect, type FloatingFeedback } from './ui/FloatingEffect';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Briefcase,
@@ -35,41 +36,46 @@ export function ActionPanel() {
   const difficultyId = useGameStore((s) => s.difficultyId);
   const gameOver = useGameStore((s) => s.gameOver);
   const activeEvent = useGameStore((s) => s.activeEvent);
+  const isMobile = useIsMobile();
 
-  const [feedbacks, setFeedbacks] = useState<FloatingFeedback[]>([]);
-  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [feedback, setFeedback] = useState<FloatingFeedback | null>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const disabled = !!gameOver || !!activeEvent;
 
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    };
+  }, []);
+
   const handleAction = useCallback(
     (actionId: ActionId) => {
-      const el = buttonRefs.current[actionId];
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        const { effects } = computeActionEffects(
-          actionId,
-          purchasedUpgrades,
-          stats,
-          currentCareerId,
-          currentHousingId,
-          traitId,
-          difficultyId,
-        );
-        const lines = formatEffectLines(effects);
-        const id = crypto.randomUUID();
-        setFeedbacks((prev) => [
-          ...prev,
-          {
-            id,
-            lines,
-            x: rect.left + rect.width / 2 - 40,
-            y: rect.top - 8,
-          },
-        ]);
-        setTimeout(() => {
-          setFeedbacks((prev) => prev.filter((f) => f.id !== id));
-        }, 2200);
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = null;
       }
+      setFeedback(null);
+
+      const { effects } = computeActionEffects(
+        actionId,
+        purchasedUpgrades,
+        stats,
+        currentCareerId,
+        currentHousingId,
+        traitId,
+        difficultyId,
+      );
+      const lines = formatEffectLines(effects);
+      if (lines.length > 0 && !isMobile) {
+        const id = crypto.randomUUID();
+        setFeedback({ id, lines });
+        feedbackTimerRef.current = setTimeout(() => {
+          setFeedback(null);
+          feedbackTimerRef.current = null;
+        }, 1600);
+      }
+
       performAction(actionId);
     },
     [
@@ -79,76 +85,75 @@ export function ActionPanel() {
       currentCareerId,
       currentHousingId,
       traitId,
+      difficultyId,
+      isMobile,
     ],
   );
 
   return (
-    <>
-      <FloatingEffect feedbacks={feedbacks} />
-      <section className="empire-card p-4 md:p-5">
-        <h2 className="empire-gradient-text text-sm font-bold uppercase tracking-widest">
-          Ações do mês
-        </h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Cada escolha avança 1 mês na sua vida.
-        </p>
+    <section className="empire-card relative max-w-full overflow-hidden p-4 md:p-5">
+      <FloatingEffect feedback={feedback} />
+      <h2 className="empire-gradient-text text-sm font-bold uppercase tracking-widest">
+        Ações do mês
+      </h2>
+      <p className="mt-1 text-xs text-slate-500">
+        Cada escolha avança 1 mês na sua vida.
+      </p>
 
-        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-          {ACTIONS.map((action, i) => {
-            const Icon = ICON_MAP[action.icon] ?? Briefcase;
-            const canDo = canAffordAction(stats, action.id as ActionId);
-            const isDisabled = disabled || !canDo;
+      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
+        {ACTIONS.map((action, i) => {
+          const Icon = ICON_MAP[action.icon] ?? Briefcase;
+          const canDo = canAffordAction(stats, action.id as ActionId);
+          const isDisabled = disabled || !canDo;
 
-            return (
-              <motion.button
-                key={action.id}
-                ref={(el) => {
-                  buttonRefs.current[action.id] = el;
-                }}
-                type="button"
-                disabled={isDisabled}
-                onClick={() => handleAction(action.id as ActionId)}
-                className={`relative flex min-h-[88px] flex-col items-start rounded-xl border p-3 text-left transition sm:min-h-[96px] sm:p-4 ${
-                  isDisabled
-                    ? 'cursor-not-allowed border-empire-border/40 bg-empire-bg/50 opacity-45'
-                    : 'border-empire-border bg-gradient-to-br from-empire-surface to-empire-card hover:border-empire-gold/40 hover:shadow-[0_0_20px_rgba(232,184,74,0.12)]'
+          return (
+            <motion.button
+              key={action.id}
+              type="button"
+              disabled={isDisabled}
+              onClick={() => handleAction(action.id as ActionId)}
+              className={`relative flex min-h-[88px] max-w-full flex-col items-start rounded-xl border p-3 text-left transition sm:min-h-[96px] sm:p-4 ${
+                isDisabled
+                  ? 'cursor-not-allowed border-empire-border/40 bg-empire-bg/50 opacity-45'
+                  : 'border-empire-border bg-gradient-to-br from-empire-surface to-empire-card hover:border-empire-gold/40 hover:shadow-[0_0_20px_rgba(232,184,74,0.12)]'
+              }`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              whileHover={
+                isDisabled || isMobile ? {} : { y: -2 }
+              }
+              whileTap={isDisabled ? {} : { scale: 0.98 }}
+            >
+              <div
+                className={`mb-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                  isDisabled ? 'bg-slate-800' : 'bg-empire-gold/15'
                 }`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-                whileHover={isDisabled ? {} : { scale: 1.02, y: -2 }}
-                whileTap={isDisabled ? {} : { scale: 0.96 }}
               >
-                <div
-                  className={`mb-2 flex h-9 w-9 items-center justify-center rounded-lg ${
-                    isDisabled ? 'bg-slate-800' : 'bg-empire-gold/15'
-                  }`}
-                >
-                  <Icon
-                    className={`h-5 w-5 ${isDisabled ? 'text-slate-600' : 'text-empire-gold'}`}
-                  />
-                </div>
-                <span className="text-sm font-semibold text-white">
-                  {action.name}
-                </span>
-                <span className="mt-1 line-clamp-2 text-[10px] leading-snug text-slate-500 sm:text-[11px]">
-                  {action.description}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
+                <Icon
+                  className={`h-5 w-5 ${isDisabled ? 'text-slate-600' : 'text-empire-gold'}`}
+                />
+              </div>
+              <span className="w-full break-words text-sm font-semibold text-white">
+                {action.name}
+              </span>
+              <span className="mt-1 line-clamp-2 w-full break-words text-[10px] leading-snug text-slate-500 sm:text-[11px]">
+                {action.description}
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
 
-        {activeEvent && (
-          <motion.p
-            animate={{ opacity: [0.6, 1, 0.6] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="mt-4 text-center text-xs font-medium text-empire-gold"
-          >
-            Resolva o evento antes de continuar
-          </motion.p>
-        )}
-      </section>
-    </>
+      {activeEvent && (
+        <motion.p
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="mt-4 text-center text-xs font-medium text-empire-gold"
+        >
+          Resolva o evento antes de continuar
+        </motion.p>
+      )}
+    </section>
   );
 }

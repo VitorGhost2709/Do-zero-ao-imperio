@@ -7,6 +7,7 @@ import type {
   MonthlyCycleResult,
   TimeState,
 } from '../types/game';
+import type { MonthBreakdownItem } from '../types/monthSummary';
 import { getDifficulty } from './difficultyLogic';
 import {
   getBusinessMonthlyIncome,
@@ -177,6 +178,7 @@ export function processMonthlyCycle(
   );
   const housing = HOUSING_MAP[state.currentHousingId];
   const messages: string[] = [];
+  const breakdown: MonthBreakdownItem[] = [];
 
   const businessResult = processBusinesses(
     state.stats,
@@ -187,6 +189,19 @@ export function processMonthlyCycle(
   );
   let currentStats = businessResult.stats;
   messages.push(...businessResult.messages);
+
+  if (businessResult.income > 0) {
+    breakdown.push({
+      label: `Negócios (líquido): +R$ ${businessResult.income}`,
+      amount: businessResult.income,
+      type: 'positive',
+    });
+  } else if (state.ownedBusinessIds.length === 0) {
+    breakdown.push({
+      label: 'Sem negócios: R$ 0 renda passiva',
+      type: 'neutral',
+    });
+  }
 
   currentStats = applyHousingMonthlyBonuses(
     currentStats,
@@ -205,17 +220,63 @@ export function processMonthlyCycle(
   messages.push(...relMonthly.messages);
   expenses += relMonthly.extraExpense;
 
+  if (relMonthly.extraExpense > 0) {
+    breakdown.push({
+      label: `Relacionamento (custos): -R$ ${relMonthly.extraExpense}`,
+      amount: -relMonthly.extraExpense,
+      type: 'negative',
+    });
+  }
+  const stressBeforeRel = currentStats.stress;
+  const relStressDelta = relMonthly.stats.stress - stressBeforeRel;
+  if (relStressDelta !== 0) {
+    breakdown.push({
+      label: `Relacionamento (estresse): ${relStressDelta > 0 ? '+' : ''}${relStressDelta}`,
+      type: relStressDelta > 0 ? 'negative' : 'positive',
+    });
+  }
+
   const familyMonthly = processFamilyMonthly(currentStats, state);
   currentStats = familyMonthly.stats;
   expenses += familyMonthly.extraExpense;
 
+  if (familyMonthly.extraExpense > 0) {
+    breakdown.push({
+      label: `Filhos (custos): -R$ ${familyMonthly.extraExpense}`,
+      amount: -familyMonthly.extraExpense,
+      type: 'negative',
+    });
+  }
+  const stressBeforeFamily = currentStats.stress;
+  const familyStressDelta = familyMonthly.stats.stress - stressBeforeFamily;
+  if (familyStressDelta !== 0) {
+    breakdown.push({
+      label: `Família (estresse): ${familyStressDelta > 0 ? '+' : ''}${familyStressDelta}`,
+      type: familyStressDelta > 0 ? 'negative' : 'positive',
+    });
+  }
+
+  const statsBeforeFame = { ...currentStats };
   currentStats = applyFameMonthlyEffects(currentStats, fame);
+  const fameStressDelta = currentStats.stress - statsBeforeFame.stress;
+  if (fameStressDelta > 0) {
+    breakdown.push({
+      label: `Fama alta: +${fameStressDelta} estresse`,
+      type: 'warning',
+    });
+  }
   fame = Math.min(100, fame);
 
   const moneyBefore = currentStats.money;
   currentStats = applyStatDelta(currentStats, { money: -expenses });
 
   const paidInFull = moneyBefore >= expenses;
+
+  breakdown.push({
+    label: `Contas do mês: -R$ ${expenses}`,
+    amount: -expenses,
+    type: 'negative',
+  });
 
   if (paidInFull) {
     const housingNote = housing?.type === 'rent' ? ' (incluindo aluguel)' : '';
@@ -228,10 +289,15 @@ export function processMonthlyCycle(
   } else {
     const deficit = expenses - moneyBefore;
     const diff = getDifficulty(state.difficultyId);
+    const unpaidStress = Math.round(8 * diff.stressGainMultiplier);
     currentStats = applyStatDelta(currentStats, {
-      stress: Math.round(12 * diff.stressGainMultiplier),
+      stress: unpaidStress,
       happiness: -8,
       reputation: -2,
+    });
+    breakdown.push({
+      label: `Contas em atraso (faltaram R$ ${deficit}): +${unpaidStress} estresse`,
+      type: 'warning',
     });
     messages.push(
       formatHistoryLine(
@@ -250,6 +316,7 @@ export function processMonthlyCycle(
     relationshipStatus,
     relationshipScore,
     fame,
+    breakdown,
   };
 }
 

@@ -37,7 +37,7 @@ export function ProgressTabs() {
     getAvailableCareers(stats, currentCareerId, traitId).length > 0;
 
   return (
-    <div className="empire-card overflow-hidden">
+    <div className="empire-card max-w-full overflow-hidden">
       <div className="flex overflow-x-auto border-b border-empire-border/80 scrollbar-thin">
         {TABS.map(({ id, label, icon: Icon }) => {
           const isActive = active === id;
@@ -72,8 +72,8 @@ export function ProgressTabs() {
       <AnimatePresence mode="wait">
         <motion.div
           key={active}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
         >

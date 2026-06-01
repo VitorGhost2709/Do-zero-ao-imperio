@@ -80,7 +80,7 @@ export function AuthModal() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-empire-border bg-empire-bg/80 px-3 py-2.5 text-sm text-white focus:border-empire-gold/50 focus:outline-none"
+            className="mt-1.5 w-full max-w-full rounded-xl border border-empire-border bg-empire-bg/80 px-3 py-2.5 text-base text-white focus:border-empire-gold/50 focus:outline-none sm:text-sm"
             placeholder="seu@email.com"
           />
         </label>
@@ -94,7 +94,7 @@ export function AuthModal() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-empire-border bg-empire-bg/80 px-3 py-2.5 text-sm text-white focus:border-empire-gold/50 focus:outline-none"
+            className="mt-1.5 w-full max-w-full rounded-xl border border-empire-border bg-empire-bg/80 px-3 py-2.5 text-base text-white focus:border-empire-gold/50 focus:outline-none sm:text-sm"
             placeholder="Mínimo 6 caracteres"
           />
         </label>
