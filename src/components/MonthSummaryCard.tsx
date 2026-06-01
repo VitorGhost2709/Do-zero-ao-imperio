@@ -31,7 +31,9 @@ export function MonthSummaryCard() {
       summary.breakdown.length > 4);
 
   return (
-    <section className="empire-card max-w-full overflow-hidden p-4 sm:p-5">
+    <section
+      className={`max-w-full p-4 sm:p-5 ${isMobile ? 'mobile-safe-card' : 'empire-card'}`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-bold text-empire-gold">Resumo do mês</h3>
